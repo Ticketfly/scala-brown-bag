@@ -33,10 +33,7 @@ object Cache {
     } yield (a,b)
 
 
-    getFromCache(key1).flatMap(
-      a => getFromCache(key2).map(
-        b=> (a,b)
-      ))
+    getFromCache(key1).flatMap(a => getFromCache(key2).map(b => (a,b)))
 
     st(cache)
 
@@ -74,6 +71,8 @@ object State {
 
   def state[S]: State[S,S] = State( st => (st,st))
 
+  def set[S](state:S) :State[S, Unit] = State(_ => (state, ()))
+
 }
 
 
@@ -83,6 +82,8 @@ case class Event(id: Long, sections: List[Section])
 
 object Event {
 
+  import State._
+
   type SectionState[A] = State[Section, A]
   type EventState[A]  = State[Event, A]
 
@@ -91,6 +92,13 @@ object Event {
 
   val e1 = e.copy(sections = Section(667, List()) :: e.sections)
 
+
+  def addSection(section: Section) :EventState[Unit] = State(e => (e.copy(sections = e.sections :+ section), ()))
+
+  def addSection2(section: Section) :EventState[Unit] = for {
+    event <- state
+    _     <- set (event.copy(sections = event.sections :+ section))
+  } yield ()
 
 
 }
