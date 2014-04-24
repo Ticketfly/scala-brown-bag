@@ -1,6 +1,6 @@
 organization := "com.ticketfly"
 
-name := "fp-demo"
+name := "fun-prog"
 
 version := "1.0"
 
