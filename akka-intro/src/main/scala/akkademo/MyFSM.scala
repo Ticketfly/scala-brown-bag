@@ -16,17 +16,19 @@ class MyFSM extends Actor with FSM[State, Data] {
   startWith(Idle, Uninitialized)
 
   when(Idle) {
-    case Event(cnt: Int) =>
+    case Event(cnt: Int, _) =>
       goto (Active) using Count(cnt)
   }
 
   when(Active, stateTimeout = 1 second) {
+
+    case Event(StateTimeout, Count(count)) =>
+      goto(Idle) using Uninitialized
+
     case Event(_, Count(cnt)) =>
       println(cnt)
       stay using Count(cnt+1)
 
-    case Event(StateTimeout, Count(count)) =>
-      goto(Idle) using Uninitialized
   }
 
 }
