@@ -44,13 +44,13 @@ object LensExample {
 
   def personState2(a:Address): State[Person, Unit] = addressL := a
 
-  def zipState(zip:Int): State[Address, Unit] = zopL := zip
+  def zipState(zip:Int): State[Address, Unit] = zipL := zip
 
 
   def personZipState(zip:Int) :State[Person,Unit] = zipState(zip) transform addressL
 
   val addressL: Person @> Address  = Lens(_.address, (p,a) => p.copy(address = a))
 
-  val zopL: Address @> Int = Lens(_.zip, (a,z) => a.copy(zip = z))
+  val zipL: Address @> Int = Lens(_.zip, (a,z) => a.copy(zip = z))
 
 }
