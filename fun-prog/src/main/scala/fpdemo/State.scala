@@ -11,6 +11,7 @@ trait Cache {
 object Cache {
 
 
+  // ouch!
   def example(cache: Cache, key1: Int, key2: Int) {
 
     val (c1, a) = cache.get(key1)
@@ -26,6 +27,7 @@ object Cache {
   def example2(cache: Cache, key1: Int, key2: Int) {
 
 
+    // same as: getFromCache(key1).flatMap(a => getFromCache(key2).map(b => (a,b)))
     val st :State[Cache, (Option[String], Option[String])]= for {
       a <- getFromCache(key1)
       b <- getFromCache(key2)
@@ -33,7 +35,6 @@ object Cache {
     } yield (a,b)
 
 
-    getFromCache(key1).flatMap(a => getFromCache(key2).map(b => (a,b)))
 
     st(cache)
 
@@ -58,6 +59,12 @@ trait State[S,A] {
       f(a).run(s1)
   }
 
+
+  def transform[R](l: Lens[R, S]): State[R,A] = State {
+    r =>
+      val (s1, a) = run(l.get(r))
+      (l.set(r, s1) ,a)
+  }
 
 
 }
