@@ -27,6 +27,7 @@ com.twitter.scrooge.ScroogeSBT.newSettings
 
 packageArchetype.java_application
 
+assemblyOption in assembly ~= { _.copy(prependShellScript = Some(defaultShellScript)) }
 
 mergeStrategy in assembly <<= (mergeStrategy in assembly) {
   (old) => {
