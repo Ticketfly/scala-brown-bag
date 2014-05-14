@@ -1,6 +1,6 @@
 ## To run examples from sbt:
 
-sbt "runMain Server <port>"
+sbt "runMain Server _port_"
 
 sbt "runMain Client"
 
@@ -9,7 +9,7 @@ sbt "runMain Client"
 
 sbt assembly
 
-java -cp target/scala-2.10/finagle-demo-assembly-1.0.jar Server <port>
+java -cp target/scala-2.10/finagle-demo-assembly-1.0.jar Server _port_
 java -cp target/scala-2.10/finagle-demo-assembly-1.0.jar Client
 
 ## To build zip distribution:
