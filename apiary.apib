@@ -31,20 +31,20 @@ This v0 call will not be modified, however the v1 calls correct this inconsisten
 
 + Response 200 (application/json)
 
+        {
+            
+            "scanCounts": [
                 {
-                    
-                    "scanCounts": [
-                        {
-                            "count": 11922,
-                            "ticketType": "Vehicle Pass PLEASE USE ALT STK"
-                        },
-                        {
-                            "count": 35321,
-                            "ticketType": "Invididual Sale"
-                        }
-                    ]
-                                
+                    "count": 11922,
+                    "ticketType": "Vehicle Pass PLEASE USE ALT STK"
+                },
+                {
+                    "count": 35321,
+                    "ticketType": "Invididual Sale"
                 }
+            ]
+                        
+        }
                 
 ## Counts by category [/v1/scans/counts-by-category?orgId={orgId}&eventId={eventId}&scanEndDate={scanEndDate}]
 
