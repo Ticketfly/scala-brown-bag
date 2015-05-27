@@ -1,0 +1,268 @@
+FORMAT: 1A
+HOST: http://api.ticketfly.com/
+
+# Ticketfly Scans API
+
+Allows an application to fetch information about entry scans for Ticketfly events.
+
+## Notes about the "meta" and "cacheTime" responses *(applicable to all calls)*:
+
+The cacheTime response is optional.  
+When a cacheTime is returned the results reflect the state of the database at that time.
+If the server is not caching results, it may at its option either not include the cacheTime key in its response, or return the key with an empty value ("cacheTime": "").
+
+The meta block is optional.  If there are no keys to be returned in the meta block, the server may at its option either not include the meta block in its response, or include an empty meta block.
+
+## Group Counts
+
+## Counts by ticket type [/v0/scans/counts-by-product?orgId={orgId}&eventId={eventId}]
+
+Returns the net number of valid-entry-scanned tickets since the event began.
+Any ticket whose most recent valid scan was an entry scan will be counted.
+If the most recent valid scan was an exit scan, the ticket will be excluded.
+Note in this call the JSON key "ticketType" is presented but what is actually returned is the section or price level, *not* the ticket type.
+This v0 call will not be modified, however the v1 calls correct this inconsistency.  The "ticketType" returned in this v0 call corresponds to "sectionOrPriceLevel" in v1 calls.
+
++ Parameters
+    + orgId: `7` (required, number) - must be an org for which your apikey is authorized
+    + eventId: `814803` (required, number) - must be an event owned by the specified org; one event only in initial implementation
+
+### Example [GET]
+
++ Response 200 (application/json)
+
+                {
+                    
+                    "scanCounts": [
+                        {
+                            "count": 11922,
+                            "ticketType": "Vehicle Pass PLEASE USE ALT STK"
+                        },
+                        {
+                            "count": 35321,
+                            "ticketType": "Invididual Sale"
+                        }
+                    ]
+                                
+                }
+                
+## Counts by category [/v1/scans/counts-by-category?orgId={orgId}&eventId={eventId}&scanEndDate={scanEndDate}]
+
+Returns the net number of valid-entry-scanned tickets since the event began.
+Any ticket whose last valid scan before the end time was an entry scan will be counted.
+If the last valid scan before the end time was an exit scan, the ticket will be excluded.
+
++ Parameters
+    + orgId: `7` (required, number) - must be an org for which your apikey is authorized
+    + eventId: `814803` (required, number) - must be an event owned by the specified org; one event only in initial implementation
+    + scanEndDate: `2015-05-16T12:00:00.000Z` (optional, ISO-8601 date) - gets scan counts for a specified date & time; default is now
+
+
+### Example [GET]
+
++ Response 200 (application/json)
+
+        {
+            "events": [
+                {
+                    "eventId": "446497",
+                    "cacheTime": "2015-05-12T17:58:42Z",
+                    "scanCounts": [
+                        {
+                            "count": 1161,
+                            "sectionOrPriceLevel": "Vehicle Pass PLEASE USE ALT STK",
+                            "sectionOrPriceLevelId": "P560445",
+                            "ticketType": "Vehicle Pass",
+                            "ticketTypeId": "IAG295601"
+                        },
+                        {
+                            "count": 2980,
+                            "sectionOrPriceLevel": "Pre-Sale",
+                            "sectionOrPriceLevelId": "P560443",
+                            "ticketType": "Pre-Sale Ticket",
+                            "ticketTypeId": "IAG295599"
+                        },                                        
+                        {
+                            "count": 16,
+                            "sectionOrPriceLevel": "Pre-Sale",
+                            "sectionOrPriceLevelId": "P560443",
+                            "ticketType": "Pre Sale Ticket",
+                            "ticketTypeId": "IAG359551"
+                        },                                        
+                        {
+                            "count": 4,
+                            "sectionOrPriceLevel": "Vehicle Pass PLEASE USE ALT STK",
+                            "sectionOrPriceLevelId": "P560445",
+                            "ticketType": "Vehicle-Pass",
+                            "ticketTypeId": "IAG359553"
+                        }
+                    ]
+                }
+            ]
+        }
+
+
+## Group Individual scans
+
+## Valid scans in time window [/v1/scans/valid-scans?orgId={orgId}&eventId={eventId}&scanStartDate={scanStartDate}&scanEndDate={scanEndDate}&offset={offset}&limit={limit}]
+
+This call returns all valid entry and exit scans within the specified time window.
+The list returned is always sorted in ascending order of scanTime.  
+If the same ticket has more than one valid scan (for example an entry followed by exit followed by entry), all will appear in the results.
+
+
++ Parameters
+    + orgId: `7` (required, number) - must be an org for which your apikey is authorized
+    + eventId: `814803` (required, number) - must be an event owned by the specified org
+    + scanStartDate: `2015-05-16T04:00:00.000Z` (required, ISO-8601 date) - start of time window
+    + scanEndDate: `2015-05-16T12:00:00.000Z` (required, ISO-8601 date) - end of time window
+    + offset: `0` (optional, number) - offset of first barcode to retrieve from the result set
+    + limit: `100` (optional, number) - number of barcodes per page; default 100, maximum 200 in the initial implementation
+
+### Example [GET]
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "paging": {
+                    "offset": 0,
+                    "limit": 100,
+                    "hasNext": false
+                },
+                "cacheTime": "2015-05-12T17:58:42Z"
+            },
+            "scans": [
+                {
+                    "barcode": "00994231116146",
+                    "sectionOrPriceLevel": "Pre-Sale",
+                    "sectionOrPriceLevelId": "P560443",
+                    "ticketType": "Pre-Sale Ticket",
+                    "ticketTypeId": "IAG295599",
+                    "barcodeActionType": "entryScanAttempt",
+                    "barcodeActionTime": "2015-05-10T04:18:22.000Z",
+                    "barcodeActionResult": "success",
+                    "barcodeActionWhodunit": "scanner37"
+                },
+                {
+                    "barcode": "00994220015057",
+                    "sectionOrPriceLevel": "Vehicle Pass PLEASE USE ALT STK",
+                    "sectionOrPriceLevelId": "P560445",
+                    "ticketType": "Vehicle Pass",
+                    "ticketTypeId": "IAG295601",
+                    "barcodeActionType": "entryScanAttempt",
+                    "barcodeActionTime": "2015-05-10T04:19:22.000Z",
+                    "barcodeActionResult": "success",
+                    "barcodeActionWhodunit": "187e-xxt-899vR-31.8xn33II2-l"
+                },
+                {
+                    "barcode": "00994231116146",
+                    "sectionOrPriceLevel": "Pre-Sale",
+                    "sectionOrPriceLevelId": "P560443",
+                    "ticketType": "Pre-Sale Ticket",
+                    "ticketTypeId": "IAG295599",
+                    "barcodeActionType": "exitScanAttempt",
+                    "barcodeActionTime": "2015-05-11T07:21:18.000Z",
+                    "barcodeActionResult": "success",
+                    "barcodeActionWhodunit": "boxoffice39"
+                }
+            ]
+        }
+
+
+## Order info for specific barcode [/v1/scans/barcode-order?orgId={orgId}&barcode={barcode}]
+
++ Parameters
+    + orgId: `7` (required, number) - must be an org for which your apikey is authorized
+    + barcode: `00994231116146` (required, string) - must be a barcode for an event owned by the specified org
+
+### Example [GET]
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "cacheTime": "2015-05-12T17:58:42Z"
+            },
+            "barcode": "00994231116146",
+            "sectionOrPriceLevel": "Pre-Sale",
+            "sectionOrPriceLevelId": "P560443",
+            "ticketType": "Pre-Sale Ticket",
+            "ticketTypeId": "IAG295599",                    
+            "order": {
+                "id": "098449046147",
+                "createdTime": "2014-10-03T17:58:42Z",
+                "updatedTime": "2014-10-04T17:58:42Z",
+                "billingInfo": {
+                    "firstName": "Test",
+                    "lastName": "User",
+                    "address1": "75 Federal Street",
+                    "address2": null,
+                    "city": "San Francisco",
+                    "stateProvince": "CA",
+                    "postalCode": "94107",
+                    "country": "USA",
+                    "phone": null,
+                    "email": "tesst@ticketfly.com"
+                },
+                "shippingInfo": {
+                    "firstName": "Test",
+                    "lastName": "User",
+                    "address1": "75 Federal Street",
+                    "address2": null,
+                    "city": "San Francisco",
+                    "stateProvince": "CA",
+                    "postalCode": "94107",
+                    "country": "USA",
+                    "phone": null,
+                    "email": "tesst@ticketfly.com"
+                },
+                "ticketRequest": true,
+                "note": "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.",
+                "externalNote": "Hey Banjo, you're a cat, please don't come to burning man.",
+                "memberGroup": "Art-FireConclave"
+            }
+            
+        }
+                
+## Barcode activity for specific barcode [/v1/scans/barcode-activity?orgId={orgId}&barcode={barcode}]
+
++ Parameters
+    + orgId: `7` (required, number) - must be an org for which your apikey is authorized
+    + barcode: `00995516552285` (required, string) - must be a barcode for an event owned by the specified org
+
+### Example [GET]
+
++ Response 200 (application/json)
+
+        {
+            "meta": {
+                "cacheTime": "2015-05-12T17:58:42Z"
+            },
+            "barcode": "00995516552285",
+            "barcodeState": "scannable",
+            "barcodeEvents": [
+                {
+                    "barcodeActionType": "entryScanAttempt",
+                    "barcodeActionTime": "2015-05-10T04:18:22.000Z",
+                    "barcodeActionResult": "success",
+                    "barcodeEventWhodunit": "boxOfficeUser John Smith"
+                },
+                {
+                    "barcodeActionType": "entryScanAttempt",
+                    "barcodeActionTime": "2015-05-10T04:13:18.000Z",
+                    "barcodeActionResult": "invalid",
+                    "barcodeActionWhodunit": "scanner919",
+                    "barcodeActionReason": "Optional human-readable explanatory message here"
+                },
+                {
+                    "barcodeActionType": "exitScanAttempt",
+                    "barcodeActionTime": "2015-05-11T07:21:18.000Z",
+                    "barcodeActionResult": "valid",
+                    "barcodeActionWhodunit": "scanner21"
+                }
+            ]
+        }
+                
+
+
